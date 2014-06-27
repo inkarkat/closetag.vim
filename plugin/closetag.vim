@@ -95,6 +95,11 @@
 "                         tag to fill in content in case there is none yet. 
 "
 " Changelog:
+" Jun 27, 2014 by Ingo Karkat
+"   * XML tag names containing "." (e.g. "<foo.bar>") aren't closed correctly
+"   ("</foo>"). Change the tag name pattern to (closely) resemble the official
+"   XML tag name definition.
+"
 " Jan 21, 2010 by Ingo Karkat
 "   * ENH: In insert mode, jump inside tag if the tag has no content; i.e. the
 "     corresponding open tag is only separated by whitespace from the closing
@@ -197,7 +202,12 @@ function! s:GetLastOpenTag(unaryTagsStack)
     let b:TagStack=""        " main stack of tags
     let startInComment=s:InComment()
 
-    let tagpat='</\=\(\k\|[-:]\)\+\|/>'
+    " XML Tag definition is
+    "   (Letter | '_' | ':') (Letter | Digit | '.' | '-' | '_' | ':' | CombiningChar | Extender)*
+    " Instead of dealing with CombiningChar and Extender, and because Vim's
+    " [:alpha:] only includes 8-bit characters, let's include all non-ASCII
+    " characters.
+    let tagpat = '</\=\%([[:alpha:]_:]\|[^\x00-\x7F]\)\%([-._:[:alnum:]]\|[^\x00-\x7F]\)*\|/>'
     " Search for: closing tags </tag, opening tags <tag, and unary tag ends />
     while (linenum>0)
 	" Every time we see an end-tag, we push it on the stack.  When we see an
