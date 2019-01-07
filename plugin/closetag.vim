@@ -95,6 +95,11 @@
 "                         tag to fill in content in case there is none yet. 
 "
 " Changelog:
+" Jan 7, 2018 by Ingo Karkat
+"   * Insert mode abbreviations are not expanded. Use :imap <expr> (which is
+"   equivalent) to allow expansion. For Vim 6.x, explicitly trigger expansion
+"   and use a noremap'ped <SID>GetCloseTag intermediate mapping.
+"
 " Jun 27, 2014 by Ingo Karkat
 "   * XML tag names containing "." (e.g. "<foo.bar>") aren't closed correctly
 "   ("</foo>"). Change the tag name pattern to (closely) resemble the official
@@ -176,10 +181,11 @@ endif
 " Set up mappings for tag closing
 "------------------------------------------------------------------------------
 if v:version < 700
-inoremap <C-_> <C-R>=<SID>GetCloseTag('i')<CR>
+inoremap <SID>GetCloseTag <C-R>=<SID>GetCloseTag('i')<CR>
+imap <script> <C-_> <C-]><SID>GetCloseTag
 nmap <C-_> a<C-_><Esc>
 else
-inoremap <expr> <C-_> <SID>GetCloseTag('i')
+imap <expr> <C-_> <SID>GetCloseTag('i')
 nnoremap <expr> <C-_> <SID>GetCloseTag('n')
 endif
 
